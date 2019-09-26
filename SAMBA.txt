@@ -1,0 +1,111 @@
+#############################################################################################################
+SERVIDOR ####################################################################################################
+#############################################################################################################
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Digite os comandos no terminal para instalar os pacotes base para o SAMBA #/////////////////////////////////#
+
+sudo apt-get install samba
+sudo apt-get install cifs-utils
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Editar o arquivo /etc/samba/smb.conf para selecionar os arquivos compartilhados #///////////////////////////#
+
+[global]
+    workgroup= REDE_LOCAL
+    netbios name= ServSamba
+    server string= Servidor Samba
+    security= users
+    map to guest= bad users
+    lanman auth= yes
+    ntlm auth= yes
+    raw NTLMv2 auth= yes
+    
+[VENDAS]
+    comment= Pasta compartilhada de vendas
+    path=/var/vendas
+    guest ok= no
+    read only= no
+    valid users=@Vendas, @chefia
+
+[CONTABILIDADE]
+    comment=Pasta compartilhada da contabilidade
+    path=/var/contabilidade
+    guest ok= no
+    read only= no
+    valid users=@Contabilidade, @chefia
+
+[FABRICA]
+    comment=Pasta compartilhada da fábrica
+    path=/var/Fabrica
+    guest ok= no
+    read only= no
+    valid users=@Fabrica, @chefia
+
+[PUBLICO]
+    comment=Pasta pública
+    path=/var/publico
+    guest ok=yes
+    read only=no
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Digite os comandos no terminal para criar usuário e adicioná-los ao Samba #/////////////////////////////////#
+
+addgroup vendas
+addgroup contabilidade
+addgroup fabrica
+addgroup chefia
+adduser pedro_silva --force-badname --ingroup vendas
+smbpasswd -a pedro_silva
+adduser joaquim_santana --force-badname --ingroup vendas
+smbpasswd -a joaquim_santana
+adduser manoel_silveira --force-badname --ingroup contabilidade
+smbpasswd -a manoel_silveira
+adduser maria_da_rosa --force-badname --ingroup contabilidade
+smbpasswd -a maria_da_rosa
+adduser carlos_reus --force-badname --ingroup fabrica
+smbpasswd -a carlos_reus
+adduser pedro_silveira --force-badname --ingroup fabrica
+smbpasswd -a pedro_silveira
+adduser paulo_bernardes --force-badname --ingroup chefia
+smbpasswd -a paulo_bernardes
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Digite os comandos no terminal para reiniciar o serviço #///////////////////////////////////////////////////#
+
+sudo /etc/init.d/smbd restart
+sudo systemctl restart smbd
+
+
+
+
+
+#############################################################################################################
+CLIENTE #####################################################################################################
+#############################################################################################################
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Digite os comandos no terminal para instalar os pacotes base para o SAMBA #/////////////////////////////////////////////////////////////////////#
+
+sudo apt-get install samba-client
+sudo apt-get install cifs-utils
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Caminho para acessar os arquivos compartilhados: Linux #////////////////////////////////////////////////////#
+
+smb://{IP_Servidor}/var/{Pasta_Compartilhada}
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Caminho para acessar os arquivos compartilhados: Windows #//////////////////////////////////////////////////#
+
+{IP_Servidor}/var/{Pasta_Compartilhada}

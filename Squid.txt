@@ -1,0 +1,65 @@
+#Instala squid
+sudo apt-get install squid
+
+#editar arquivo de configuração
+nano /etc/squid/squid.conf
+
+#se o caminho não existir, tente 
+nano /etc/squid3/squid.conf
+
+#copiar as seguintes informações para o arquivo:
+http_port 3128
+visible_hostname Firewall
+cache_mem 64 MB
+
+maximum_object_size_in_memory 64 KB
+maximum_object_size 512 MB
+minimum_object_size 0 KB
+
+cache_swap_low 90
+cache_swap_high 95
+cache_dir ufs /var/spool/squid 2048 16 256
+cache_access_log /var/log/squid/access.log
+
+refresh_pattern ^ftp: 15 20% 2280
+refresh_pattern ^gopher: 15 0% 2280
+refresh_pattern . 15 20% 2280
+
+acl IPFree src 192.168.10.0/24
+acl lunchtime time 12:00-13:30
+acl SitesBlock url_regex -i "/etc/squid/SitesBloqueados/SitesBloqueados"
+acl manager proto cache_object 
+acl SSL_ports port 443 563 
+acl Safe_ports port 21 80 443 563 70 210 280 488 59 777 901 1025-65535
+acl purge method PURGE
+acl CONNECT method CONNECT
+
+http_access deny SitesBlock !IPFree !lunchtime
+http_access allow manager localhost
+http_access deny manager
+http_access allow purge localhost
+http_access deny purge
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+
+acl redelocal src 192.168.20.0/24
+
+http_access allow localhost
+http_access allow redelocal
+http_access deny all
+
+#após salvar e fechar, edite o arquivo SitesBlock
+nano /etc/squid/SitesBloqueados/SitesBloqueados
+
+#copiar as seguintes informações para o arquivo:
+*.facebook.com
+*.twiter.com
+*.instagram.com
+
+#após salvar e fechar, reinicie o serviço
+sudo squid -z
+
+
+
+
+
