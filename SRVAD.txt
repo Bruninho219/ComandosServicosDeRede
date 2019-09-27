@@ -196,16 +196,84 @@ sudo /etc/init.d/isc-dhcp-server restart
 
 
 
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Remover complexibilidade da senha #/////////////////////////////////////////////////////////////////////////#
+
+sudo samba-tool domain passwdsettings set --complexity=off --history-length=0 -min-pwd-length=0 -min-pwd-age=0 
+
+
+
 
 
 #############################################################################################################
-WINDOWS XP ##################################################################################################
+WINDOWS 7 ###################################################################################################
 #############################################################################################################
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////#
-Renomear máquina #//////////////////////////////////////////////#
+Colocar máquina no dominio #////////////////////////////////////////////////////////////////////////////////#
+
+Clicar com o botão direito em cima de "Meu computador"
+Clicar em "Alterar configurações"
+Clicar em "Alterar"
+Alterar o membro para "Dominio" e informar o dominio
+Reiniciar o computador
 
 
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////#
-Inserir máquina no dominio #//////////////////////////////////////////////#
+Adicionar ferramentas administrativas #/////////////////////////////////////////////////////////////////////#
+
+Após logar com uma conta administrativa:
+Clicar com o botão direito em cima do logo Windows
+Clicar em "Propriedades"
+Clicar em "Personalizar"
+Selecionar a opção para exibir todos os ícones administrativos
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Adicionar grupo #///////////////////////////////////////////////////////////////////////////////////////////#
+
+No menu iniciar, clicar em "Ferramentas administrativas"
+Selecionar a opção "Usuários e Computadores do Active Directory"
+Na barra de menu, selecionar o item "User"
+No menu superior, selecionar a opção para adcionar o grupo
+Informe os dados do grupo
+
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Adicionar usuário #/////////////////////////////////////////////////////////////////////////////////////////#
+
+No menu iniciar, clicar em "Ferramentas administrativas"
+Selecionar a opção "Usuários e Computadores do Active Directory"
+Na barra de menu, selecionar o item "User"
+No menu superior, selecionar a opção para adcionar o usuário
+Informe os dados do usuário
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Adicionar usuário ao grupo #////////////////////////////////////////////////////////////////////////////////#
+
+Clique com o botão direito em cima do grupo desejado, e selecione "Propriedades"
+Selecione a aba "Membros", e depois em "Adcionar"
+Informe o nome do usuário e selecione "Verificar nomes" e adicione o membro desejado
+
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////#
+Adicionar usuário ao grupo #/////////////////////////////////////////////////////////////////////////////////////////#
+
+
+
+
+
+
+
+
+
+
+
+
