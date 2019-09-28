@@ -221,6 +221,8 @@ Adicionar ao arquivo nano /etc/samba/smb.conf #/////////////////////////////////
 	comment= Pasta alunos
 	read only=no
 
+
+
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////#
 Digite os comandos no terminal para criar os diretórios #///////////////////////////////////////////////////#
 
@@ -265,6 +267,8 @@ smbcontrol all reload-config
 
 
 
+
+
 #############################################################################################################
 WINDOWS 7 ###################################################################################################
 #############################################################################################################
@@ -299,6 +303,7 @@ Selecionar a opção "Usuários e Computadores do Active Directory"
 Na barra de menu, selecionar o item "User"
 No menu superior, selecionar a opção para adcionar o grupo
 Informe os dados do grupo
+
 
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////#
@@ -336,6 +341,3 @@ Selecionar a aba "Permissões de compartilhamento"
 Adicione o usuário correspondente
 Selecione as permissões
 Remova o grupo "Todos"
-
-
-
