@@ -1,0 +1,82 @@
+SERV DNS:
+
+sudo nano /etc/bind/zonas/db.alunos.red.br
+
+web	IN	A	192.168.10.6
+www	IN	CNAME	web
+@	IN	A	192.168.10.6
+
+Alterar serial conforme necessário.
+
+sudo /etc/init.d/bind9 restart
+
+SERV FIREWALL:
+
+sudo nano /etc/squid/squid.conf
+
+dns_nameservers 192.168.10.5
+
+SERV WEB:
+
+sudo mkdir /var/www/empresa
+
+sudo mkdir /var/www/alunos
+
+sudo nano /var/www/alunos/index.html
+
+<body>
+	<h1> alunos.red.br </h1>
+</body>
+
+sudo nano /var/www/empresa/index.html
+
+<body>
+	<h1> empresa.red.br </h1>
+</body>
+
+sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/empresa.conf
+
+sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/alunos.conf
+
+sudo nano /etc/apache2/sites-available/empresa.conf
+
+ServerName empresa.red.br
+ServerAlias www.empresa.red.br
+ServerAdmin webmaster@localhost
+DocumentRoot /var/www/empresa
+
+sudo nano /etc/apache2/sites-available/alunos.conf
+
+ServerName alunos.red.br
+ServerAlias www.alunos.red.br
+ServerAdmin webmaster@localhost
+DocumentRoot /var/www/alunos
+
+sudo a2dissite 000-default
+
+sudo a2ensite empresa.conf
+sudo a2ensite alunos.conf
+
+sudo systemctl reload apache2
+
+SSL:
+
+sudo a2enmod ssl
+
+sudo cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/ssl_empresa.conf
+
+sudo cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/ssl_alunos.conf
+
+sudo nano /etc/apache2/sites-available/ssl_empresa.conf
+
+sudo nano /etc/apache2/sites-available/ssl_alunos.conf
+
+ServerAdmin webmaster@localhost
+ServerName alunos.red.br
+ServerAlias www.alunos.red.br
+DocumentRoot /var/www/alunos
+
+sudo a2ensite ssl_empresa.conf
+sudo a2ensite ssl_alunos.conf
+
+sudo systemctl reload apache2

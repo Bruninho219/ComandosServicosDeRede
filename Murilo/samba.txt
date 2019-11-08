@@ -1,0 +1,49 @@
+ARQUIVO COMPLETO (smb.conf):
+
+[global]
+workgroup = REDE_LOCAL
+netbios name = ServSMB
+server string = ServidorSMB
+security = user
+map to guest = bad user
+lanman auth = yes
+ntlm auth = yes
+raw NTLMv2 auth = yes
+
+## Pastas Compartilhadas
+
+[Vendas]
+comment = Pasta compartilhada do Departamento de Vendas
+path = /var/Vendas
+guest ok = no
+browseable = yes
+writable = yes
+read only = no
+valid users = @vendas, @dono
+
+[Contabilidade]
+comment = Pasta Compartilhada do Departamento Contábil
+path = /var/Contabilidade
+guest ok = no
+browseable = yes
+writable = yes
+read only = no
+valid users = @contabilidade, @dono
+
+[Fábrica]
+comment = Pasta Compartilhada da Fábrica
+path = /var/Fábrica
+guest ok = no
+browseable = yes
+writable = yes
+read only = no
+valid users = @fabrica, @dono
+
+[Geral]
+comment = Pasta Compartilhada Geral
+path = /var/Geral
+guest ok = no
+browseable = yes
+writable = yes
+read only = no
+valid users = @vendas, @contabilidade, @fabrica, @dono
