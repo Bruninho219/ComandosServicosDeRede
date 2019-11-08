@@ -1,0 +1,119 @@
+IFC - Redes de Computadores
+Serviços de Redes
+Jéferson Mendonça de Limas
+Murilo Selau Justo
+13/09/19
+
+1 - SERVIDOR SAMBA (Debian 10 x86)
+
+Instalar os pacotes necessários para o funcionamento do Samba:
+
+sudo apt install samba
+sudo apt install cifs-utils
+
+Criar as pastas a serem compratilhadas:
+
+sudo mkdir /var/Vendas
+sudo mkdir /var/Contabilidade
+sudo mkdir /var/Fábrica
+sudo mkdir /var/Geral
+
+Criar os usuários e os grupos que acessarão as suas respectivas pastas, e adiciona-los ao samba:
+
+sudo addgroup vendas
+sudo addgroup contabilidade
+sudo addgroup fabrica
+sudo addgroup dono
+
+sudo adduser pedrosilva --ingroup vendas
+sudo adduser joaquimsantana --ingroup vendas
+sudo adduser manoelsilveira --ingroup contabilidade
+sudo adduser mariadarosa --ingroup contabilidade
+sudo adduser carlosreus --ingroup fabrica
+sudo adduser pedrosilveira --ingroup fabrica
+sudo adduser paulobernardes --ingroup dono
+
+sudo smbpasswd -a pedrosilva
+sudo smbpasswd -a joaquimsantana
+sudo smbpasswd -a manoelsilveira
+sudo smbpasswd -a mariadarosa
+sudo smbpasswd -a carlosreus
+sudo smbpasswd -a pedrosilveira
+sudo smbpasswd -a paulobernardes
+
+Editando o arquivo de configurações do Samba(smb.conf):
+
+Adicionar as linhas na sessão [global] do arquivo para ter acesso com usuário e senha no Windows XP:
+
+lanman auth = yes
+ntlm auth = yes
+raw NTLMv2 auth = yes
+
+ARQUIVO COMPLETO (smb.conf):
+
+[global]
+workgroup = REDE_LOCAL
+netbios name = ServSMB
+server string = ServidorSMB
+security = user
+map to guest = bad user
+lanman auth = yes
+ntlm auth = yes
+raw NTLMv2 auth = yes
+
+## Pastas Compartilhadas
+
+[Vendas]
+comment = Pasta compartilhada do Departamento de Vendas
+path = /var/Vendas
+guest ok = no
+browseable = yes
+writable = yes
+read only = no
+valid users = @vendas, @dono
+
+[Contabilidade]
+comment = Pasta Compartilhada do Departamento Contábil
+path = /var/Contabilidade
+guest ok = no
+browseable = yes
+writable = yes
+read only = no
+valid users = @contabilidade, @dono
+
+[Fábrica]
+comment = Pasta Compartilhada da Fábrica
+path = /var/Fábrica
+guest ok = no
+browseable = yes
+writable = yes
+read only = no
+valid users = @fabrica, @dono
+
+[Geral]
+comment = Pasta Compartilhada Geral
+path = /var/Geral
+guest ok = no
+browseable = yes
+writable = yes
+read only = no
+valid users = @vendas, @contabilidade, @fabrica, @dono
+
+Após alteração do arquivo, reiniciar o serviço:
+
+sudo /etc/init.d/smbd restart
+
+2 - CLIENTES WINDOWS (XP e 7)
+
+Acessar as pastas usando \\[IP_Servidor] ou \\[IP_Servidor]/[Nome_Pasta] na barra de endereços ou usando Windows + R.
+
+Ex: \\192.168.10.3/Vendas
+
+3 - CLIENTE LINUX (Ubuntu)
+
+Instalar os pacotes necessários para o funcionamento do Samba Cliente:
+
+sudo apt install samba-client
+sudo apt install cifs-utils
+
+Acessar as pastas usando smb://[IP_Servidor] na barra de endereços.

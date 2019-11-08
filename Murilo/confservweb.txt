@@ -1,0 +1,45 @@
+sudo apt install apache2 apache2-utils libapache2-mod-php php php-mysql
+php-cli php-pear php-gmp php-gd php-bcmath php-mbstring php-curl php-xml
+php-zip mariadb-server mariadb-client
+
+sudo nano /etc/resolv.conf
+
+sudo a2enmod rewrite
+
+sudo /etc/init.d/apache2 restart
+
+sudo nano /etc/apache2/sites-available/000-default.conf
+
+Abaixo de "DocumentRoot /var/www/html"
+
+<Directory /var/www/html/>
+	Options Indexes FollowSymLinks
+	AllowOverride All
+</Directory>
+
+cd /var/www/html/
+sudo touch phpinfo.php
+sudo nano phpinfo.php
+
+<?php phpinfo(); ?>
+
+SERV DNS:
+
+sudo nano /etc/bind/zonas/db.empresa.red.br
+
+web	IN	A	192.168.10.6
+www	IN	CNAME	web
+@	IN	A	192.168.10.6
+
+sudo nano /etc/bind/zonas/rev.empresa.red.br
+
+6	IN	PTR	web
+
+sudo nano /etc/bind/zonas/db.alunos.red.br
+
+web	IN	A	192.168.10.6
+www	IN	CNAME	web
+@	IN	A	192.168.10.6
+
+Atualizar seriais conforme nescessário.
+

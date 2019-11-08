@@ -1,0 +1,92 @@
+FIREWALL:
+
+sudo nano /etc/dhcp/dhcpd.conf
+
+option domain-name-servers 192.168.10.4;
+
+SAMBA AD:
+
+sudo nano /etc/samba/smb.conf
+
+dns forwarder = 192.168.10.5
+
+sudo /etc/init.d/samba-ad-dc restart
+
+SERV DNS:
+
+sudo /etc/init.d/bind9 status
+
+sudo nano /etc/bind/named.conf.options
+
+forwarders {
+	192.168.10.5;
+};
+
+sudo nano /etc/bind/named.conf.local
+
+zone "empresa.red.br" {
+	type master;
+	file "/etc/bind/zonas/db.empresa.red.br";
+	allow-update {none;};
+	notify yes;
+};
+
+zone "10.168.192.in-addr.arpa" {
+	type master;
+	file "/etc/bind/zonas/rev.empresa.red.br";
+	allow-update {none;};
+	notify yes;
+};
+
+sudo named-checkconf
+
+sudo mkdir /etc/bind/zonas
+
+sudo cp /etc/bind/db.empty /etc/bind/zonas/db.empresa.red.br
+sudo cp /etc/bind/db.empty /etc/bind/zonas/rev.empresa.red.br
+
+sudo nano /etc/bind/zonas/db.empresa.red.br
+
+@	IN	SOA		ns1.empresa.red.br. suporte.empresa.red.br. (
+				2019101801	; Serial
+
+@	IN	NS		ns1.empresa.red.br.
+ns1	IN	A		192.168.10.5
+
+
+sudo nano /etc/bind/zonas/rev.empresa.red.br
+
+@	IN	SOA		ns1.empresa.red.br. suporte.empresa.red.br. (
+				2019101801	; Serial
+
+@	IN	NS		ns1.empresa.red.br.
+5	IN	PTR		ns1
+
+
+sudo named-checkzone empresa.red.br /etc/bind/zonas/db.empresa.red.br
+
+sudo named-checkzone 10.168.192.in-addr.arpa /etc/bind/zonas/rev.empresa.red.br
+
+sudo /etc/init.d/bind9 restart
+
+
+Adicionando novo domínio "alunos.red.br":
+
+sudo nano /etc/bind/named.conf.local
+
+zone "alunos.red.br" {
+	type master;
+	file "/etc/bind/zonas/db.alunos.red.br";
+	allow-update {none;};
+	notify yes;
+};
+
+sudo cp /etc/bind/db.empty /etc/bind/zonas/db.alunos.red.br
+
+sudo nano /etc/bind/zonas/db.alunos.red.br
+
+@	IN	SOA		ns1.alunos.red.br. suporte.alunos.red.br. (
+				2019101801	; Serial
+
+@	IN	NS		ns1.alunos.red.br.
+ns1	IN	A		192.168.10.5

@@ -1,0 +1,83 @@
+sudo nano /etc/network/interfaces
+sudo nano /etc/hostname
+sudo nano /etc/hosts
+sudo nano /etc/resolv.conf
+
+sudo apt install linux-source build-essential ntp ntpdate samba winbind libnss-winbind linux-headers-$(uname -r) acl attr ldb-tools krb5-user smbclient
+
+Não
+
+empresa.rede
+
+127.0.0.1
+
+127.0.0.1
+
+sudo systemctl stop smbd nmbd winbind
+
+sudo systemctl disable smbd nmbd winbind
+
+sudo ps ax | egrep "smbd|nmbd|winbind"
+
+sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.bk
+
+sudo samba-tool domain provision --use-rfc2307 --interactive
+
+empresa.rede
+
+8.8.8.8
+
+@123admin
+
+sudo cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
+
+sudo systemctl unmask samba-ad-dc
+
+sudo systemctl enable samba-ad-dc
+
+sudo systemctl start samba-ad-dc
+
+sudo nano /etc/nsswitch.conf
+
+passwd: files systemd winbind
+group:  files systemd winbind
+
+sudo shutdown -r now
+
+sudo getent passwd "EMPRESA\Administrator"
+
+host -t A servad.empresa.rede
+host -t srv _kerberos._tcp.empresa.rede
+host -t srv _ldap._tcp.empresa.rede
+
+sudo kinit Administrator
+
+sudo klist
+
+smbclient -L empresa.rede -U administrator
+
+sudo nano /etc/samba/smb.conf
+
+# Máquina Firewall #
+
+sudo nano /etc/dhcp/dhcpd.conf
+
+option domain-name-servers 192.168.10.4, 8.8.8.8, 8.8.4.4;
+
+sudo /etc/init.d/isc-dhcp-server restart
+
+# Windows XP #
+
+Alterar nome do Computador:
+
+WINXPAD
+
+Incluir domínio:
+
+empresa.rede
+
+Credenciais:
+
+Administrator
+@123admin
+

@@ -1,0 +1,61 @@
+
+klist
+
+kinit administrator
+
+sudo samba-tool domain passwordsettings show
+
+sudo samba-tool domain passwordsettings set --complexity=off --history-length=0 --min-pwd-length=0 --min-pwd-age=0
+
+sudo samba-tool user list
+
+sudo samba-tool group list
+
+# ARQUIVO smb.conf #
+
+[global]
+
+    vfs objects=acl_xattr
+    map acl inherit=yes
+    store dos attributes=yes
+
+[PROFESSORES]
+    path = /samba/professores
+    comment = Pasta Professores
+    read only =no
+
+[ALUNOS]
+    path = /samba/alunos
+    comment = Pasta Alunos
+    read only = no
+
+sudo mkdir -p /samba/professores
+sudo mkdir -p /samba/alunos
+sudo chmod 0770 -R /samba/professores
+sudo chmod 0770 -R /samba/alunos
+sudo chown -R root:"Domain Admins" /samba/professores
+sudo chown -R root:"Domain Admins" /samba/alunos
+sudo net rpc rights grant "EMPRESA\Domain Admins" SeDiskOperatorPrivilege -U "EMPRESA\Administrator"
+
+
+
+
+
+
+# Cliente Linux #
+
+sudo nano /etc/environment
+sudo nano /etc/profile
+sudo install cid cid-gtk
+
+
+# Lista de Usuários #
+
+administrator @123admin
+
+maria.rosa    @12345a 123
+rosa.silva    @12345a 123
+
+pedro.sousa   @12345a 123
+joao.silva    @12345a 123
+

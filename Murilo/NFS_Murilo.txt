@@ -1,0 +1,145 @@
+IFC - Redes de Computadores
+Serviços de Redes
+Jéferson Mendonça de Limas
+Murilo Selau Justo
+06/09/19
+
+1 - FIREWALL (Debian 10 x86)
+
+Criar arquivo de script para permitir acesso a internet na rede do servidor:
+
+sudo mkdir /home/suporte/script
+sudo touch /home/suporte/script/firewall.sh
+
+Conteúdo do arquivo firewall.sh:
+
+#!/bin/bash
+### Libera Compartilhamento da Internet
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
+
+### Bloqueia portas 80 e 443 na REDE_LOCAL
+iptables -t filter -A FORWARD -p udp --dport 80 -s 192.168.20.0/24 -o enp0s3 -j DROP
+iptables -t filter -A FORWARD -p tcp --dport 80 -s 192.168.20.0/24 -o enp0s3 -j DROP
+iptables -t filter -A FORWARD -p udp --dport 443 -s 192.168.20.0/24 -o enp0s3 -j DROP
+iptables -t filter -A FORWARD -p tcp --dport 443 -s 192.168.20.0/24 -o enp0s3 -j DROP
+
+### Libera demais portas na REDE_LOCAL
+iptables -t filter -A FORWARD -s 192.168.20.0/24 -o enp0s3 -j ACCEPT
+
+#################################
+
+Executar o seguinte comando no terminal para tornar o arquivo executável:
+
+sudo chmod +x firewall.sh
+
+#################################
+
+Criar arquivo: /etc/init.d/firewall
+
+Conteúdo do arquivo: /etc/init.d/firewall
+
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          firewall
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Iniciar firewall no momento da inicialização
+# Description:       Ativa o serviço de firewall.
+### END INIT INFO
+
+case "$1" in
+	start)
+	   echo "Iniciando Script de Firewall"
+	   cd /home/suporte/script; ./firewall.sh 
+	   ;;
+	stop)
+	   echo "Parando Script de Firewall"
+	   pkill -f firewall
+	   ;;
+	*)
+	   echo "Usage: /etc/init.d/firewall {start|stop}"
+	   exit 1
+		   ;;
+esac
+exit 0
+
+Executar o seguinte comando no terminal para tornar o arquivo executável:
+
+sudo chmod +x firewall
+
+Executar o seguinte comando no terminal para reiniciar o servidor:
+
+sudo update-rc.d firewall defaults
+
+##################################
+
+SERVIDOR NFS (Debian 10 x86)
+
+Executar o seguinte comando para instalar o servidor NFS:
+
+sudo apt install nfs-kernel-server
+
+Criar os diretórios que serão compartilhados:
+
+sudo mkdir /var/programas
+sudo mkdir /var/geral
+
+Abrir e adicionar as linhas no arquivo /etc/exports:
+
+sudo nano /etc/exports
+
+/var/programas 192.168.20.0/24(ro,no_root_squash,sync,no_subtree_check)
+/var/geral 192.168.20.0/24(rw,no_root_squash,sync,no_subtree_check)
+
+
+Negando acesso remoto aos hosts adicionando as linhas no arquivo /etc/hosts.deny:
+
+sudo nano /etc/hosts.deny
+
+portmap: ALL
+lockd: ALL
+mountd: ALL
+rquotad: ALL
+statd: ALL
+
+Dando permissão de acesso a rede local adicionando as linhas no arquivo /etc/hosts.allow:
+
+sudo nano /etc/hosts.allow
+
+portmap: 192.168.20.0/24
+lockd: 192.168.20.0/24
+rquotad: 192.168.20.0/24
+mountd: 192.168.20.0/24
+statd: 192.168.20.0/24
+
+Reiniciando o serviço e aplicando as alterações:
+
+sudo /etc/init.d/nfs-kernel-server restart
+
+#############################################
+
+CLIENTE (Debian 10 x86)
+
+Instalando o cliente nfs:
+
+sudo apt install nfs-common
+
+Criando os diretórios para montar os diretórios compartilhados no servidor:
+
+sudo mkdir /remoto_programas
+sudo mkdir /remoto_geral
+
+Montando os diretórios:
+
+sudo mount -t 192.168.10.2:/var/programs /remoto_programas
+sudo mount -t 192.168.10.2:/var/geral /remoto_geral
+
+Adicionando as seguintes linhas no arquivo /etc/fstab os diretórios são montados na inicialização do sistema:
+
+192.168.10.2:/var/programas /remoto_programas nfs ro,exec,auto 0 0
+192.168.10.2:/var/geral /remoto_geral nfs rw,exec,auto 0 0
+
+#####################################################

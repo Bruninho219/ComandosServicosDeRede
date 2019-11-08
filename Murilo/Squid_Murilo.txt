@@ -1,0 +1,128 @@
+IFC - Redes de Computadores
+Serviços de Redes
+Jéferson Mendonça de Limas
+Murilo Selau Justo
+30/08/19
+
+1 - Instalando o Squid:
+
+sudo apt install squid
+
+2 - Configuração inicial, acesso somente na rede local e cache de páginas:
+
+Foram utilizadas as mesmas configurações da aula, a edição inicial do arquivo /etc/squid/squid.conf segue abaixo: 
+
+http_port 3128
+visible_hostname firewall
+
+cache_mem 64 MB
+maximum_object_size_in_memory 64 KB
+maximum_object_size 512 MB
+minimum_object_size 0 KB
+cache_swap_low 90
+cache_swap_high 95
+cache_dir ufs /var/spool/squid 2048 16 256
+cache_access_log /var/log/squid/access.log
+refresh_pattern ^ftp: 15 20% 2280
+refresh_pattern ^gopher: 15 0% 2280
+refresh_pattern . 15 20% 2280
+
+acl manager proto cache_object
+acl SSL_ports port 443 563
+acl Safe_ports port 21 80 443 563 70 210 280 488 59 777 901 1025-65535
+acl purge method PURGE
+acl CONNECT method CONNECT
+
+http_access allow manager localhost
+http_access deny manager
+http_access allow purge localhost
+http_access deny purge
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+
+acl redelocal src 192.168.20.0/24
+http_access allow localhost
+http_access allow redelocal
+
+http_access deny all
+
+3 - Dando acesso total ao IP 192.168.20.2/24, bloqueando acesso aos sites e liberando o acesso no horário de almoço:
+
+Foram adicionadas as seguintes linhas ao arquivo /etc/squid/squid.conf entre refresh_pattern . 15 20% 2280 e acl manager proto cache_object:
+
+acl ips_fullaccess src 192.168.20.2 # Permissão total ao IP
+acl lunchtime time 12:00-13:30 # Sites liberados no horário de almoço
+acl blockedsites url_regex -i "/etc/squid/bloqueados/block.txt" # Sites bloqueados em arquivo separado
+
+Conteúdo do arquivo /etc/squid/bloqueados/block.txt
+
+# Sites bloqueados
+
+.facebook.com
+.twitter.com
+.instagram.com
+
+Alés das linhas citadas foi adicionada mais uma linha após acl CONNECT method CONNECT:
+
+http_access deny blockedsites !ips_fullaccess !lunchtime # Confirmações e exceções das acls
+
+4 - Bloqueando extensões de arquivos/downloads:
+
+Infelizmente nos testes as linhas não funcionaram, porém mantive algumas das linhas testadas em comentário no arquivo /etc/squid/squid.conf.
+
+Para a realização dos testes foram utilizadas Debian 10 como servidor e Windows XP como cliente, ambos x86.
+
+Comandos:
+
+sudo squid -k reconfigure
+sudo /etc/init.d/squid restart
+
+Para a edição dos arquivos foi utilizado o nano 3.2.
+
+#####################################################
+
+ARQUIVO FINAL (/etc/squid/squid.conf):
+
+http_port 3128
+visible_hostname firewall
+
+cache_mem 64 MB
+maximum_object_size_in_memory 64 KB
+maximum_object_size 512 MB
+minimum_object_size 0 KB
+cache_swap_low 90
+cache_swap_high 95
+cache_dir ufs /var/spool/squid 2048 16 256
+cache_access_log /var/log/squid/access.log
+refresh_pattern ^ftp: 15 20% 2280
+refresh_pattern ^gopher: 15 0% 2280
+refresh_pattern . 15 20% 2280
+
+acl ips_fullaccess src 192.168.20.2
+acl lunchtime time 12:00-13:30
+acl blockedsites url_regex -i "/etc/squid/bloqueados/block.txt"
+# acl blockeddowns url_regex -i \.iso \.mp3 \.avi \.torrent
+# acl blockeddowns urlpath_regex -i \.iso \.mp3 \.avi \.torrent
+# acl blockeddowns urlpath_regex -i \.iso$ \.mp3$ \.avi$ \.torrent$
+# acl blockeddowns urlpath_regex -i "/etc/squid/bloqueados/ext.txt"
+# acl blockeddowns url_regex -i "/etc/squid/bloqueados/ext.txt"
+acl manager proto cache_object
+acl SSL_ports port 443 563
+acl Safe_ports port 21 80 443 563 70 210 280 488 59 777 901 1025-65535
+acl purge method PURGE
+acl CONNECT method CONNECT
+
+http_access deny blockedsites !ips_fullaccess !lunchtime
+# http_access deny blockeddowns
+http_access allow manager localhost
+http_access deny manager
+http_access allow purge localhost
+http_access deny purge
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+
+acl redelocal src 192.168.20.0/24
+http_access allow localhost
+http_access allow redelocal
+
+http_access deny all
