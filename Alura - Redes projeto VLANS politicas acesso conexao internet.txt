@@ -1,0 +1,105 @@
+link: cursos.alura.com.br/course/redes-projeto-vlans-politicas-acesso-conexao-internet/
+Switch Central:
+
+enable
+	
+	show vlan brief                                        //mostra as vlans
+	
+	configure terminal
+
+		vlan 10                                            //cria vlan
+			name nvlan10                                   //nomeia vlan
+			exi
+		vlan 20
+			name vlan20
+			exit
+		
+		interface Fa 0/1
+			switchport mode access                         //modo de acesso
+			switchport access vlan 10
+			exit		
+		interface Fa 0/2
+			switchport mode access
+			switchport access vlan 20
+			exit
+		exit
+		
+		interface Fa 0/3
+			switchport mode trunck                         //modo de tronco
+			exit
+		
+		enable vlan 30
+			name servidores
+			exit
+		
+		interface Fa 0/4
+			switchport mode access
+			switchport access vlan 30
+			exir
+		
+	show vlan brief
+	wr
+
+
+
+Router:
+
+enable
+	configure terminal
+		
+		ip dhcp pool vlan10
+			network 192.168.10.0 255.255.255.0
+			exit
+		ip dhcp pool vlan20
+			network 192.168.20.0 255.255.255.0
+			exit
+		
+		interface Fa 0/0
+			no shutdown
+			exit
+		
+		interface Fa 0/0.1
+			encapsulation dot1Q 10
+			ip address 192.168.10.1 255.255.255.0
+			exit
+		
+		interface Fa 0/0.2
+			encapsulation dot1Q 20
+			ip address 192.168.20.1 255.255.255.0
+			exit
+		
+		ip dhcp pool vlan10
+			default-router 192.168.10.1
+			exit
+		
+		ip dhcp pool vlan20
+			default-router 192.168.20.1
+			exit
+		
+		interface F1 0/0.3
+			encapsulation dot1Q 30
+			ip address 172.16.4.1 255.255.255.0
+			exit
+		
+		ip dhcp excluded-address 172.16.2.2                //exclui o ip da faixa dhcp
+		
+		ip access-list extended nomeLista                  //cria uma lista de acesso
+			permit tcp 172.16.2.0 0.0.0.255                //permite toda a rede 172.16.2.0/24 (0= tem que ser igual)
+			permit tcp 172.16.2.2 0.0.0.0                  //permite apenas o ip 172.16.2.2
+			permit tcp 172.16.2.3 0.0.0.0
+			
+			deny tcp 172.16.2.6 0.0.255.255                //bloqueia o acesso da rede 172.16.0.0/16
+			deny tcp 0.0.0.0 255.255.255.255               //bloqueia tudo que não foi permitido antes
+			permit ip any any                              //permite qualquer origem e qualquer destino
+			exit
+		
+		interface Fa 0/0.1
+			ip access-group nomeLista in                   //habilita a regra a respectiva interface e fal o controle já na entrada (in)
+			exit
+		interface Fa 0/0.2
+			ip access-group nomeLista in
+			exit
+			
+		do wr
+		exit
+	wr
