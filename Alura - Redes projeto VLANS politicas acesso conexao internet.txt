@@ -1,4 +1,4 @@
-link: cursos.alura.com.br/course/redes-projeto-vlans-politicas-acesso-conexao-internet/
+link: cursos.alura.com.br/course/redes-implementando-roteamento-dns-ipv6
 Switch Central:
 
 enable
@@ -132,15 +132,55 @@ enable
 
 
 ###############################################################################
-Router Provedora:
+Router ISP 1 - A:
 
 enable
 	configure terminal
+		
+		show ip route                                                          //mostra a tabela de roteamento
 		
 		interface Serial 0/1/0
 			ip address 150.1.1.1 255.255.255.2
 			no shutdown
 			exit
+		
+		interface Fa 0/0
+			ip address 150.1.1.5 255.255.255.252
+			no shutdown
+			
+			router rip                                                         //habilita o protocolo de roteamento RIP (usado em redes pequenas - antigo)
+				version 2                                                      //especifica que vai ser o RIPv2
+				no auto-sumary                                                 //desabilita o resumo das sub-redes na tabela de roteamonto como uma única rede
+				network 150.1.1.0                                              //especifica a rede conhecida
+				network 150.1.1.4
+				exit
+		do wr
+		exit
+	wr
+
+
+
+###############################################################################
+Router ISP 1 - B:
+
+enable
+	configure terminal
+		
+		interface Fa 0/0
+			ip address 150.1.1.6 255.255.255.252
+			no shutdown
+		
+		interface Fa 0/1
+			ip address 150.1.1.9 255.255.255.252
+			no shutdown
+		
+		router rip
+			version 2
+			no auto-sumary
+			network 150.1.1.4
+			network 150.1.1.8
+			exit
+		
 		do wr
 		exit
 	wr
